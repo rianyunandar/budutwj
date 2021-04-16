@@ -1,0 +1,14 @@
+rilis
+11 Januari 2021
+
+Update
+
+DATABASE
+-tabel el_materi
+-tabel el_materi_anggota_rombel
+
+WEB APLIKASI
+-Guru
+ *Materi
+-Siswa
+ *materi

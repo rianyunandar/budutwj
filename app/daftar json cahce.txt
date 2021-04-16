@@ -1,0 +1,106 @@
+id = sekolah
+
+master_agama
+--------------------------------------
+sekolah_json.id
+jurusan_json.id
+master_jabatan
+guru_skl.id
+master_jabatan1
+kajur.id
+master_sekolah.id
+user_guru.id
+transpot.id
+master_keadaan.id
+master_kelas
+user_siswa.id
+user_siswa_off.id
+api_json_siswa.id
+
+absen_siswa_finger.idsk.idjrs.idrombel
+
+informasi_sekolah.id 
+userinformasi_sekolah.id => untuk info semua siswa guru
+
+
+/---------------------------
+*di menu dashbor 
+jsk.idjsk.id
+getSiswaNoRombel.id
+RincianSiswaRombel.id
+jumSiswaPerSekolah.id
+jumlahRombel.id
+jumSiswaPerJurusan.id
+jumGuruPerSekolah.id
+getSekolah.id
+TotalAgama.id
+TransportTotal.id
+TransportRombel.id
+TransportSiswas.idtransport.id
+
+/Menu Siswa--------------------------------
+anggota.rombel.$idrombel
+datasiswa.idsiswa
+absen_sekolah.$idsiswa.$bulan 
+total_absen_siswa_sekolah.$username.$bulan
+//elerning materi
+getKodeKelas.idrombel
+getKodeRombel.idrombel
+listmateri.$koderombel.$kodemapel.$kodekelas
+getJadwalMapelListSiswa.kodeRombel.kodeKelas
+
+
+
+
+//meu guru ---------------------------------------
+datasiswaguru.$idrombel
+jadwalmapel.idguru
+rekap_absen_siswa.idrombel.idmapel
+total_absen_siswa.idrombel.idmapel
+getsiswarombel.idrombel
+cetak_rekap_absen.$rbl.$mpl.$bln.$tahunajaran.$semster
+NamatahunAjaranAktif
+tahunAjaranAktif
+SelectJadwalGuru.idguru
+
+
+
+//menu select
+SelectRombelSkl.idsekolah
+SelectMataPelajaran.idsekolah
+SelectRombel.idsekolah
+FilterSmpSelect
+
+
+ ----------------------------------------------------------------------------------------------------------
+api/apiuser/42de2507af4861c8b5ca930c5c317d2e/BU2
+aapanel
+ln -s /www/wwwroot/akademik_laravel/storage/app/public 
+ln -s /www/wwwroot/smk2.budutwj.id/public/storage
+
+
+
+mencoba yang ini
+dengan sarat name symlink blm ada jika sudah ada maka harus di hapus terlebih dahulu
+ln -s /path/to/target /path/to/shortcut
+
+ln -s /www/wwwroot/akademik_laravel/storage/app/public /www/wwwroot/smk2.budutwj.id/storage
+
+AAPANEL
+masuk ke www/wwroot/
+ln -s /akademik_laravel/storage/app/public /smk2.budutwj.id/storage
+
+
+menghapus symlink
+rm symlink_name (rm ./storage)
+
+unlink /www/wwwroot/smk2.budutwj.id/public/storage
+unlink storage
+
+
+--------------------------------------------------------------------------------------------------------------------
+perlu di perbaiki pada menu dashbor admin
+agama, transport, looping nya ketiga cek data siswa
+
+
+

@@ -33,6 +33,11 @@ class Master_jurusan extends Model
 		return $skl;
         //Cache Redis --------------------------------------------------------------------
     }
+    public function user_guru()
+    {
+       return $this->belongsTo(User_guru::class,'jrsId','ugrJrsId');
+       
+    }
 
     
 }

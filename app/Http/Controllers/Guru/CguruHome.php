@@ -258,7 +258,9 @@ class CguruHome extends Controller
 	function GuruUpdateDataProfile(Request $request){
 
 			$guru = User_guru::find(decrypt_url(GetIdGuru()));
-      $guru->ugrFirstName = strtoupper(request()->firstname);
+      // $guru->ugrGelarDepan = request()->gdepan;
+			// $guru->ugrGelarBelakang = request()->gbelakang;
+			$guru->ugrFirstName = strtoupper(request()->firstname);
       $guru->ugrLastName = strtoupper(request()->lastname);
       $guru->ugrHp = request()->nohp;
       $guru->ugrWa = request()->nowa;

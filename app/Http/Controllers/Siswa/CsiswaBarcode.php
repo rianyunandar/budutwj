@@ -3,28 +3,9 @@
 //membaca lokasi Controller dalam Folder
 namespace App\Http\Controllers\Siswa;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash; //menjalankan printah Hash Enkripsi
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Crypt;
-use DataTables;
-use Auth;//menjalankan printah auth
+
 use App\User_siswa;
-use App\Master_sekolah;
-use App\Master_jurusan;
-use App\Master_rombel;
-use App\Master_kelas;
-use App\Profile_siswa;
-use App\Anggota_rombel;
-use App\Master_wali_kelas;
-use App\Log_aksi_user;
-use App\Master_mapel_jadwal;
-use App\Master_mapel_jadwal_rombel;
-use App\El_materi;
-use App\El_materi_view;
-use App\El_materi_anggota_rombel;
-use Illuminate\Support\Facades\Redirect;
+
 
 class CsiswaBarcode extends Controller
 {

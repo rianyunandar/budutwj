@@ -83,12 +83,12 @@ document.addEventListener('DOMContentLoaded', function() {
 									<div class="alert alert-danger">{{ session('error') }}</div>
 									@endif
 									<!-- Papan Informasi-->
-									<div class="form-group">
+									{{-- <div class="form-group">
 										<div class="alert alert-danger alert-dismissable">
 											<button type="button" class="close" data-dismiss="alert">×</button>
 											<strong>Perhatian!</strong> sehubungan dengan Informasi <b>Pemberian bantuan kuota internet untuk mahasiswa</b> maka dari itu mahasiswa/i agar dapat mengecek <b>NIK (No KTP) , NO HP , NO TELPON &amp; EMAIL</b> apakah sudah sesuai atau tidak. 
 										</div> 
-									</div>
+									</div> --}}
 									<!-- /Papan Informasi-->
 									<div class="form-group form-group-feedback form-group-feedback-left">
 										<input type="text" class="form-control" placeholder="Username" id="username" name="username">

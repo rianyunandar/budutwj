@@ -84,7 +84,7 @@ if(!empty($_GET['skl'])){
 								<th>Jam Out</th>
 								<th>Status Absen</th>
 								<th>Rombel</th>
-								<th>Jurusan</th>
+								{{-- <th>Jurusan</th> --}}
 								<th>Sekolah</th>
 							</tr>
 						</thead>
@@ -197,7 +197,7 @@ if(!empty($_GET['skl'])){
 				{ "data": "afsOut" },
 				{ "data": "status_absen" },
 				{ "data": "namarombel" },
-				{ "data": "jurusan" },
+				// { "data": "jurusan" },
 				{ "data": "sekolah" },
 			],
 		

@@ -20,7 +20,68 @@
       </div>
     </div>
     
-    
+    <div class="row">
+      <div class="col-md-12">
+      <!-- Seamless button group -->
+      <div class="mb-3">
+        <div class="row row-tile no-gutters">
+          <div class="col-6">
+            @if(Setting()->setSiswaAbsenSekolah ==1)
+            <a href="{{ route('absensi.sekolah') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="mi-fingerprint text-primary " style="font-size: 32px;"></i>
+              <span>Absen Sekolah</span>
+            </a>
+            @endif
+
+            <a href="{{ route('foto.siswa') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-camera text-teal icon-2x" ></i>
+              <span>Foto Profile</span>
+            </a>
+          </div>
+          
+          <div class="col-6 border-bottom">
+            @if(Setting()->setSiswaAbsenMapel ==1)
+            <a href="{{ route('absensi.mapel') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-alarm-check text-blue-400 icon-2x"></i>
+              <span>Abse Mapel</span>
+            </a>
+            @endif
+
+            <a href="{{ route('password') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-key text-dark icon-2x"></i>
+              <span>Ganti Password</span>
+            </a>
+          </div>
+          <div class="col-6">
+            <a href="{{ route('wali.kelas') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-graduation2 text-slate icon-2x"></i>
+              <span>WALI KELAS</span>
+            </a>
+
+            <a href="{{ route('anggota.kelas') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-users4 text-warning icon-2x"></i>
+              <span>KELAS</span>
+            </a>
+          </div>
+          
+          <div class="col-6">
+            <a href="{{ route('list.jadwal.mapel') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-book text-info icon-2x"></i>
+              <span>MATERI</span>
+            </a>
+
+            <a href="{{ route('list.tugas.siswa') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
+              <i class="icon-bookmark text-primary icon-2x"></i>
+              <span>TUGAS</span>
+            </a>
+          </div>
+          
+        </div>
+      </div>
+      <!-- /seamless button group -->
+      </div>
+    </div>
+
     {{--Menu 2 informasi pengumuman , siswa , kelas Tab Menu  --}}
     <div class="row">
       <div class="col-md-12">
@@ -170,67 +231,7 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-12">
-      <!-- Seamless button group -->
-      <div class="mb-3">
-        <div class="row row-tile no-gutters">
-          <div class="col-6">
-            @if(Setting()->setSiswaAbsenSekolah ==1)
-            <a href="{{ route('absensi.sekolah') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="mi-fingerprint text-primary " style="font-size: 32px;"></i>
-              <span>Absen Sekolah</span>
-            </a>
-            @endif
-
-            <a href="{{ route('foto.siswa') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="icon-camera text-teal icon-2x" ></i>
-              <span>Upload Foto</span>
-            </a>
-          </div>
-          
-          <div class="col-6 border-bottom">
-            @if(Setting()->setSiswaAbsenMapel ==1)
-            <a href="{{ route('absensi.mapel') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="icon-alarm-check text-blue-400 icon-2x"></i>
-              <span>Abse Mapel</span>
-            </a>
-            @endif
-
-            <a href="{{ route('password') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="icon-key text-dark icon-2x"></i>
-              <span>Ganti Password</span>
-            </a>
-          </div>
-          <div class="col-6">
-            <a href="{{ route('wali.kelas') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="icon-graduation2 text-slate icon-2x"></i>
-              <span>WALI KELAS</span>
-            </a>
-
-            <a href="{{ route('anggota.kelas') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="icon-users4 text-warning icon-2x"></i>
-              <span>KELAS</span>
-            </a>
-          </div>
-          
-          <div class="col-6">
-            <a href="{{ route('list.jadwal.mapel') }}" type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="icon-book text-info icon-2x"></i>
-              <span>MATERI</span>
-            </a>
-
-            <button type="button" class="font-coloku btn bg-white btn-block btn-float m-0">
-              <i class="text-success-400 icon-2x">&nbsp;</i>
-              <span>&nbsp;</span>
-            </button>
-          </div>
-          
-        </div>
-      </div>
-      <!-- /seamless button group -->
-      </div>
-    </div>
+    
 
 
     {{--Menu 3 --}}

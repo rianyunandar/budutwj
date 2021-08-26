@@ -158,8 +158,45 @@ class CguruAbsensi extends Controller
 		return $data;
 		
 	}
+	function getJadwalMapelOne(){
+		//ambil jadwal mapel hanya satu
+		if(!empty($_GET['skl'])){
+			$skl=decrypt_url($_GET['skl']);
+			if(!empty($_GET['rbl'])){ 
+				$rbl = decrypt_url($_GET['rbl']);
+				$kodeRombel = $this->cariRombelKode($rbl);
+				$data = Master_mapel_jadwal::where('majdUgrId',$this->GetIdGuru())
+				->where('majdSklId',$skl)
+				->where('majdRblKode',$kodeRombel)
+				->groupBy('majdRblKode')
+				->get();
+			}
+			else{
+				$data = Master_mapel_jadwal::where('majdUgrId',$this->GetIdGuru())
+				->where('majdSklId',$skl)
+				->groupBy('majdRblKode')
+				->get();
+			}
+		}else{
+			$data = [];
+		}
+		
+		return $data;
+		
+	}
+	function getBulanTahunAbsen(){
+    if (Cache::has('ta_asben'.$this->getSkl())){ $data = Cache::get('ta_asben'.$this->getSkl()); }
+    else{ 
+    $data = Absen_finger_siswa::select(DB::raw('MONTH(afsDatetime) AS bulan,YEAR(afsDatetime) AS tahun'))
+    ->groupBy('tahun')
+    ->get();
+     Cache::put('ta_asben'.$this->getSkl(), $data, ChaceJam());
+    }
+    return $data;
+    
+  }
   
-//----------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 	//jadwal mapel absensi ---------------------------------------------------------------
 	/* Menu Absensi ------------------------------*/ 
 	function GuruJadwalMapelAbsen(){
@@ -511,6 +548,7 @@ class CguruAbsensi extends Controller
 
 	//insert guru melakukan tambah data absen
 	function InsertMapelAbsenManualGuru(Request $request){
+	
 		$namahari = date('l', strtotime($request->tgl));
 		$tgl = date('Y-m-d', strtotime($request->tgl));
 		$tahunajaran = $this->getTahunAjaran();
@@ -519,6 +557,9 @@ class CguruAbsensi extends Controller
 		$rombel = decrypt_url($request->rbl);
 		$mapel = $request->mapel;
 		$datasiswa = $request->cekpilih;
+		$dataStatus = $request->status;
+		$dataKtr = $request->ktr;
+		
 		$skl = decrypt_url($request->skl);
 		$semster = $this->getSemester();
 
@@ -534,6 +575,16 @@ class CguruAbsensi extends Controller
 					$sudahada++;
 				}
 				else{
+					foreach($dataStatus as $key => $val){
+						if($data == $key){
+							$dataKehadiran = $val;
+						}
+					}
+					foreach($dataKtr as $key2 => $val2){
+						if($data == $key2){
+							$dataaKeterangan = $val2;
+						}
+					}
 					$data2[]=array(
 						'abmpSklId' => $skl,
 						'abmpRblId' => $rombel,
@@ -545,7 +596,8 @@ class CguruAbsensi extends Controller
 						'abmpHari' => $namahari,
 						'abmpJamin' =>$jadwal->majdJamMulai,
 						'abmpJamout' =>$jadwal->majdJamAkhir,
-						'abmpAkKode' =>'H', //status kehaidran siswa
+						'abmpAkKode' =>$dataKehadiran, //status kehaidran siswa
+						'abmpKeterangan' => $dataaKeterangan,
 						'abmpUserAksi' =>2,
 						);
 						$belumada++;
@@ -556,7 +608,7 @@ class CguruAbsensi extends Controller
 					if($cekAbsenSekolah > 0 ){ }else{
 						//$status = CekKehadiranJamMasuk($jadwal->majdJamMulai);
 						//karna COVID-19 jadi sistem absen sekolah di buat hadir semua
-						$status='H';
+						$status=$dataKehadiran;
 						$dataAbsenSekolah[]=array(
 							'afsSklId' =>$skl,
 							'afsSsaUsername' =>$data,
@@ -569,6 +621,7 @@ class CguruAbsensi extends Controller
 							'afsJenis' => 2,
 							'afsSemester' =>$semster,
 							'afsTahunAjaran' =>$tahunajaran,
+							'afsKeterangan' => $dataaKeterangan,
 
 						);
 					}
@@ -605,6 +658,167 @@ class CguruAbsensi extends Controller
 		}
 		
 	} //end function
+// cari absensi mapel izin ------------------------------------------------------------
+	function MapelAbsenManualGuruIzin(){
+		if(!empty($_GET['rbl'])){
+			$rbl = decrypt_url($_GET['rbl']);
+			//cache data redis ---------------------------------------------------------------------------
+			if (Cache::has('getsiswarombel'.$rbl)){ $data= Cache::get('getsiswarombel'.$rbl); }
+			else{
+				$data = User_siswa::where('ssaRblId',$rbl)
+				->orderBy("ssaFirstName")
+				->get();
+				Cache::put('getsiswarombel'.$rbl, $data, ChaceJam() );
+			}
+			//cache data redis ---------------------------------------------------------------------------
+		}
+		else{
+			$data=[];
+		}
+		
+		$params = [
+			'title'	=>'Absensi Mapel Manual',
+			'label' =>'ABSENSI MAPEL MANUAL',
+			'getSekolah' => $this->getSekolah(),
+			'getSiswa' =>$data,
+			'getJadwal' => $this->getJadwalMapel(),
+			
+		];
+		return view('guru/Mapelabsensi/mapel_absen_manual_izin')->with($params);
+	}
+	//untuk proses izin absen mata pelajaran
+	function InsertMapelAbsenIzinGuru(Request $request){
+		$namahari = date('l', strtotime($request->tgl));
+		$tgl = date('Y-m-d', strtotime($request->tgl));
+		$tahunajaran = $this->getTahunAjaran();
+		$status_absen = $request->status;
+		$keterangan = $request->keterangan;
+
+		//get jadwal mapel
+		$jadwal = Master_mapel_jadwal::find($request->mapel);
+		$rombel = decrypt_url($request->rbl);
+		$mapel = $request->mapel;
+		$datasiswa = $request->cekpilih;
+		$skl = decrypt_url($request->skl);
+		$semster = $this->getSemester();
+
+		if(!empty($datasiswa)){
+			//$jml = count($datasiswa);
+			$sudahada=0; $belumada=0;
+			foreach($datasiswa as $data){
+				$cek = Absen_mapel::where('abmpSsaUsername',$data)
+				->where('abmpMajdId',$request->mapel)
+				->where('abmpTgl',$tgl)->first();
+
+				//cek apakah absensi izin mapel sudaha da
+				if(!empty($cek)){
+					$sudahada++;
+					Absen_mapel::where('abmpId',$cek->abmpId)->update(array(
+						'abmpSklId' => $skl,
+						'abmpRblId' => $rombel,
+						'abmpMajdId' => $mapel,
+						'abmpTajrKode' =>$tahunajaran,
+						'abmpSmKode'	=> $semster,
+						'abmpSsaUsername' => $data,
+						'abmpTgl' => $tgl,
+						'abmpHari' => $namahari,
+						'abmpJamin' =>$jadwal->majdJamMulai,
+						'abmpJamout' =>$jadwal->majdJamAkhir,
+						'abmpAkKode' => $status_absen, //status kehaidran siswa
+						'abmpKeterangan' => $keterangan,
+						'abmpUserAksi' =>2,
+					));
+				}
+				else{
+					$data2[]=array(
+						'abmpSklId' => $skl,
+						'abmpRblId' => $rombel,
+						'abmpMajdId' => $mapel,
+						'abmpTajrKode' =>$tahunajaran,
+						'abmpSmKode'	=> $semster,
+						'abmpSsaUsername' => $data,
+						'abmpTgl' => $tgl,
+						'abmpHari' => $namahari,
+						'abmpJamin' =>$jadwal->majdJamMulai,
+						'abmpJamout' =>$jadwal->majdJamAkhir,
+						'abmpAkKode' => $status_absen, //status kehaidran siswa
+						'abmpKeterangan' => $keterangan,
+						'abmpUserAksi' =>2,
+						);
+						$belumada++;
+				
+					//cek apakah sudah ada absensi sekolah
+					$cekAbsenSekolah  = Absen_finger_siswa::where('afsSsaUsername',$data)
+					->where('afsDatetime',$tgl)->first();
+					if(!empty($cekAbsenSekolah)){ 
+						//jangan lakukan update ke absensi finger print atau sekolah melalui absensi mapel
+						//jika suda ada absensi sekolah makan lakukan upadate
+						// Absen_finger_siswa::where('afsId',$cekAbsenSekolah->afsId)->update(array(
+						// 	'afsSklId' =>$skl,
+						// 	'afsSsaUsername' =>$data,
+						// 	'afsRblId'	=>$rombel,
+						// 	'afsAkId'		=>$status_absen,
+						// 	'afsDatetime' => $tgl,
+						// 	'afsIn' => $jadwal->majdJamMulai,
+						// 	'afsOut' => $jadwal->majdJamAkhir,
+						// 	'afsHari' => $namahari,
+						// 	'afsJenis' => 2,
+						// 	'afsSemester' =>$semster,
+						// 	'afsTahunAjaran' =>$tahunajaran,
+						// ));
+					}else{
+						//$status = CekKehadiranJamMasuk($jadwal->majdJamMulai);
+						//karna COVID-19 jadi sistem absen sekolah di buat hadir semua
+						$dataAbsenSekolah[]=array(
+							'afsSklId' =>$skl,
+							'afsSsaUsername' =>$data,
+							'afsRblId'	=>$rombel,
+							'afsAkId'		=>$status_absen,
+							'afsDatetime' => $tgl,
+							'afsIn' => $jadwal->majdJamMulai,
+							'afsOut' => $jadwal->majdJamAkhir,
+							'afsHari' => $namahari,
+							'afsJenis' => 2,
+							'afsSemester' =>$semster,
+							'afsTahunAjaran' =>$tahunajaran,
+							'afsKeterangan' =>$keterangan,
+
+						);
+					}
+
+				}
+
+			} //end foreach
+			//cek apakah array data2 kosong 
+			if(empty($data2)){
+				Cache::forget('rekap_absen_siswa'.$rombel.$mapel);
+				Cache::forget('total_absen_siswa'.$rombel.$mapel);
+				$response = ['success'=> 'Absen '.$sudahada.' Siswa Sudah Di Update'];
+				return response()->json($response,200);
+			}
+			else{
+				$add = Absen_mapel::insert($data2);
+				if($add){
+					if(!empty($dataAbsenSekolah)){
+						Absen_finger_siswa::insert($dataAbsenSekolah);
+					}
+					$response = ['success'=>'Berhasil Tambah Absen '.$belumada.' Siswa | '.$sudahada.' Sudah Ada Absen'];
+					return response()->json($response,200);
+				}
+				else{
+					$response = ['error'=>'Gagal Tambah Absen Siswa'];
+					return response()->json($response,202);
+				}
+
+			}
+
+		} //end if empty
+		else{
+			$response = ['error'=>'Silahkan Pilih Siswa Terlebih Dahulu'];
+			return response()->json($response,202);
+		}
+	}
+
 
 //rekap absen mapel ---------------------------------------------------------------------
 
@@ -632,6 +846,18 @@ class CguruAbsensi extends Controller
 		];
 		return view('guru/Mapelabsensi/total_mapel_absen')->with($params);
 	}
+	function TotalALLMapelAbsenGuru(){
+		//total absen perbulan 31 hari mapel jadwal guru LUKAHITS
+		$params = [
+			'title'	=>'Rekap All Mapel Absen ',
+			'label' =>'REKAP ALL MAPEL ABSEN',
+			'getSekolah' => $this->getSekolah(),
+			'getJadwal' => $this->getJadwalMapelOne(),
+			
+		];
+		return view('guru/Mapelabsensi/total_all_absen')->with($params);
+	}
+
 	function JsonRekapAbsenMapel(Request $request){
 		//pada menu rincian absensi mapel 
 		$tahunajaran = $this->getTahunAjaran();
@@ -693,7 +919,10 @@ class CguruAbsensi extends Controller
 			}
 			return $user;
 		})
-		->rawColumns(['usercek','status']);
+		->addColumn('keterangan',function ($data) { 
+			return $data->abmpKeterangan;
+		})
+		->rawColumns(['usercek','status','keterangan']);
 		return $dt->make();
 		
 	}
@@ -710,6 +939,59 @@ class CguruAbsensi extends Controller
 		// else{ 
 			$data = Absen_mapel::where('abmpRblId',$rbl)
 				->where('abmpMajdId',$mpl)
+				->where('abmpTajrKode',$tahunajaran)
+				->where('abmpSmKode',$semster)
+				->whereMonth('abmpTgl', $bln)
+				->with('master_mapel_jadwal')
+				->with('master_rombel')
+				->with('user_siswa')
+				->with('absen_kategori')
+				->selectRaw("*,
+					SUM(CASE WHEN abmpAkKode='K' THEN 1 ELSE 0 END) AS KEGIATAN,
+					SUM(CASE WHEN abmpAkKode='U' THEN 1 ELSE 0 END) AS ULANGAN,
+					SUM(CASE WHEN abmpAkKode='L' THEN 1 ELSE 0 END) AS LIBUR,
+					SUM(CASE WHEN abmpAkKode='H' THEN 1 ELSE 0 END) AS HADIR,
+					SUM(CASE WHEN abmpAkKode='A' THEN 1 ELSE 0 END) AS ALPHA,
+					SUM(CASE WHEN abmpAkKode='B' THEN 1 ELSE 0 END) AS BOLOS,
+					SUM(CASE WHEN abmpAkKode='I' THEN 1 ELSE 0 END) AS IZIN,
+					SUM(CASE WHEN abmpAkKode='T' THEN 1 ELSE 0 END) AS TERLAMBAT,
+					SUM(CASE WHEN abmpAkKode='S' THEN 1 ELSE 0 END) AS SAKIT
+					")
+				->groupBy('abmpSsaUsername')
+				->get();
+		// 		Cache::put('total_absen_siswa'.$rbl.$mpl, $data, ChaceMenit() );
+		// }
+		
+		$dt= DataTables::of($data)
+		->addColumn('no','')
+		->addColumn('rombel',function ($data) { 
+			return $data->master_rombel->master_kelas->klsKode.' '.$data->master_rombel->rblNama;
+		})
+		->addColumn('nama_siswa',function ($data) { 
+			return $data->user_siswa->ssaFirstName.' '.$data->user_siswa->ssaLastName;
+		})
+		->addColumn('total',function ($data) { 
+			$total = ($data->HADIR + $data->KEGIATAN + $data->ULANGAN + $data->TERLAMBAT );
+			return $total; 
+		})
+		
+		;
+		return $dt->make();
+
+	}
+	function JsonTotalAllAbsenMapel(Request $request){
+		//pada menu total absensi mapel 
+		$tahunajaran = $this->getTahunAjaran();
+		$semster = $this->getSemester();
+		$skl = decrypt_url($request->input('skl'));
+    $rbl = decrypt_url($request->input('amp;rbl'));
+    $mpl = decrypt_url($request->input('amp;mpl'));
+		$bln = decrypt_url($request->input('amp;bln'));
+		//cache data redis ---------------------------------------------------------------------------
+		// if (Cache::has('total_absen_siswa'.$rbl.$mpl)){ $data= Cache::get('total_absen_siswa'.$rbl.$mpl); }
+		// else{ 
+			$data = Absen_mapel::where('abmpRblId',$rbl)
+				//->where('abmpMajdId',$mpl)
 				->where('abmpTajrKode',$tahunajaran)
 				->where('abmpSmKode',$semster)
 				->whereMonth('abmpTgl', $bln)
@@ -779,7 +1061,9 @@ class CguruAbsensi extends Controller
 		$namarombel = Master_rombel::with('master_kelas')->find($rbl);
 		//nonaktifkan strict pada config/database.php
 		//cache data redis ---------------------------------------------------------------------------
-		if (Cache::has('cetak_rekap_absen'.$rbl.$mpl.$bln.$tahunajaran.$semster)){ $data= Cache::get('cetak_rekap_absen'.$rbl.$mpl.$bln.$tahunajaran.$semster); }
+		if (Cache::has('cetak_rekap_absen'.$rbl.$mpl.$bln.$tahunajaran.$semster)){ 
+			$data= Cache::get('cetak_rekap_absen'.$rbl.$mpl.$bln.$tahunajaran.$semster); 
+		}
 		else{ 
 			$data = Absen_mapel::where('abmpRblId',$rbl)
 			->where('abmpMajdId',$mpl)
@@ -846,12 +1130,236 @@ class CguruAbsensi extends Controller
 				'absen' => $data,
 				'mapel'	=>$mapel->majdNama,
 				'bulan'	=> bulanIndo($bln),
+				
 
 			];
 		
 		return view('guru/Mapelabsensi/cetak_absen_mapel_detail')->with($params);
 	}
 	/* End Menu Rekap Absensi ---------------------------*/
- 
+
+//Absnesi Sekolah Sisa pada Bagian Guru -------------------------------------------------------------------
+	function LihatAbsenSekolah(){
+		$params = [
+      'title' =>'Absen Finger Siswa',
+      'label' =>'DATA ABSENS FINGER SISWA ',
+      'getSekolah' => $this->getSekolah(),
+      'getRombel' => $this->getRombel(),
+      'getBulanTahunAbsen' => $this->getBulanTahunAbsen(),
+
+    ];
+    return view('guru/absen_sekolah/view_absen')->with($params);
+	}
+
+  function jsonAbsenFinger(Request $request)
+  {
+    $skl = decrypt_url($request->input('skl'));
+    $rbl = decrypt_url($request->input('amp;rbl'));
+    $thn = decrypt_url($request->input('amp;thn'));
+    $bln = decrypt_url($request->input('amp;bln'));
+    
+
+      if(empty($skl)){
+        $data=[];
+        $dt= DataTables::of($data);
+      }
+      else{
+        if (Cache::has('absen_siswa_finger'.$skl.$rbl)){ $data = Cache::get('absen_siswa_finger'.$skl.$rbl); }
+        else{
+          $data = Absen_finger_siswa::with(
+            'master_sekolah',
+            'master_jurusan',
+            'master_rombel',
+            'absen_kategori',
+            'user_siswa'
+          )
+          ->where('afsSklId',$skl)
+          ->where('afsRblId',$rbl)
+          ->whereYear('afsDatetime', $thn)
+          ->whereMonth('afsDatetime', $bln)
+          ->get();
+          $chace = Cache::put('absen_siswa_finger'.$skl.$rbl, $data, ChaceJam()); 
+        }
+
+
+        $dt= DataTables::of($data)
+        ->addColumn('no','')
+        ->addColumn('namasiswa',function ($data) { 
+            return $data->user_siswa->ssaFirstName.' '.$data->user_siswa->ssaLastName;
+          })
+        ->addColumn('username',function ($data) { 
+            return $data->user_siswa->ssaUsername;
+          })
+        // ->addColumn('jurusan',function ($data) { 
+        //     return $data->master_jurusan->jrsSlag;
+        //   })
+        ->addColumn('sekolah',function ($data) { 
+            return $data->master_sekolah->sklKode;
+          })
+        ->addColumn('status_absen',function ($data) { 
+            //return $data->absen_kategori->akKode;
+            return $data->afsAkId;
+          })
+        ->addColumn('namarombel',function ($data) { 
+          return $data->master_rombel->master_kelas->klsKode.$data->master_rombel->rblNama;
+        })
+        ->addColumn('aksi',function ($data) { 
+        $id = Crypt::encrypt($data->afsId);
+        $button = '<a href="'.$id.'/edit-absen-finger" title="Edit Data" class="btn btn-sm btn-outline bg-primary text-primary border-primary legitRipple" ><i class="icon-pencil7"></i></a> ';
+        $button .='<a title="Hapus Data" id="delete" class="btn btn-sm btn-outline bg-danger text-danger border-danger legitRipple" data-id="'.$id.'"><i class="icon-trash"></i></a>';
+        return $button;
+        })->rawColumns(['aksi']);
+      
+      }
+    return $dt->make(); 
+  }
+
+	public function ViewRekapAbsenFinger(Request $request){
+		if(empty($request->input('skl'))){
+			$data = [];
+		}
+		else{
+			$skl = decrypt_url($request->input('skl'));
+			$rbl = decrypt_url($request->input('rbl'));
+			$thn = decrypt_url($request->input('thn'));
+			$bln = decrypt_url($request->input('bln'));
+			$data = Absen_finger_siswa::with(
+        'master_sekolah',
+        'master_jurusan',
+        'master_rombel',
+        'absen_kategori',
+        'user_siswa'
+      )
+      ->where('afsSklId',$skl)
+      ->where('afsRblId',$rbl)
+      ->whereYear('afsDatetime', $thn)
+      ->whereMonth('afsDatetime', $bln)
+      ->selectRaw("*,
+          
+          SUM(CASE WHEN afsAkId='K' THEN 1 ELSE 0 END) AS KEGIATAN,
+          SUM(CASE WHEN afsAkId='U' THEN 1 ELSE 0 END) AS ULANGAN,
+          SUM(CASE WHEN afsAkId='L' THEN 1 ELSE 0 END) AS LIBUR,
+          SUM(CASE WHEN afsAkId='H' THEN 1 ELSE 0 END) AS HADIR,
+          SUM(CASE WHEN afsAkId='A' THEN 1 ELSE 0 END) AS ALPHA,
+          SUM(CASE WHEN afsAkId='B' THEN 1 ELSE 0 END) AS BOLOS,
+          SUM(CASE WHEN afsAkId='I' THEN 1 ELSE 0 END) AS IZIN,
+          SUM(CASE WHEN afsAkId='T' THEN 1 ELSE 0 END) AS TERLAMBAT,
+          SUM(CASE WHEN afsAkId='S' THEN 1 ELSE 0 END) AS SAKIT
+          ")
+        ->groupBy('afsSsaUsername')
+        ->get();
+			
+		}
+		
+
+
+    $params = [
+      'title' =>'Absen Finger Siswa',
+      'label' =>'DATA ABSENS FINGER SISWA ',
+			'absen' => $data,
+      'getSekolah' => $this->getSekolah(),
+      'getRombel' => $this->getRombel(),
+      'getBulanTahunAbsen' => $this->getBulanTahunAbsen(),
+
+    ];
+    return view('guru/absen_sekolah/view_rekap_absen_sekolah')->with($params);
+  }
+  public function CetakViewRekapAbsenFinger(Request $request){
+    $skl = decrypt_url($request->input('skl'));
+    $rbl = decrypt_url($request->input('rbl'));
+    $thn = decrypt_url($request->input('thn'));
+    $bln = decrypt_url($request->input('bln'));
+    $namaskl = Master_sekolah::find($skl);
+    $kepalaSekolah = User_guru::where('ugrSklId',$skl)
+    ->where('ugrTugasTambahan','KEPSEK')->first();
+		$namarombel = Master_rombel::with('master_kelas')->find($rbl);
+
+    if (Cache::has('cetak_rekap_absen_finger'.$skl.$rbl.$thn.$bln)){ $data= Cache::get('cetak_rekap_absen_finger'.$skl.$rbl.$thn.$bln); }
+		else{ 
+
+      $data = Absen_finger_siswa::with(
+        'master_sekolah',
+        'master_jurusan',
+        'master_rombel',
+        'absen_kategori',
+        'user_siswa'
+      )
+      ->where('afsSklId',$skl)
+      ->where('afsRblId',$rbl)
+      ->whereYear('afsDatetime', $thn)
+      ->whereMonth('afsDatetime', $bln)
+      ->selectRaw("*,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=1,afsAkId,NULL))) AS tgl1,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=2,afsAkId,NULL))) AS tgl2,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=3,afsAkId,NULL))) AS tgl3,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=4,afsAkId,NULL))) AS tgl4,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=5,afsAkId,NULL))) AS tgl5,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=6,afsAkId,NULL))) AS tgl6,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=7,afsAkId,NULL))) AS tgl7,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=8,afsAkId,NULL))) AS tgl8,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=9,afsAkId,NULL))) AS tgl9,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=10,afsAkId,NULL))) AS tgl10,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=11,afsAkId,NULL))) AS tgl11,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=12,afsAkId,NULL))) AS tgl12,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=13,afsAkId,NULL))) AS tgl13,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=14,afsAkId,NULL))) AS tgl14,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=15,afsAkId,NULL))) AS tgl15,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=16,afsAkId,NULL))) AS tgl16,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=17,afsAkId,NULL))) AS tgl17,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=18,afsAkId,NULL))) AS tgl18,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=19,afsAkId,NULL))) AS tgl19,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=20,afsAkId,NULL))) AS tgl20,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=21,afsAkId,NULL))) AS tgl21,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=22,afsAkId,NULL))) AS tgl22,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=23,afsAkId,NULL))) AS tgl23,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=24,afsAkId,NULL))) AS tgl24,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=25,afsAkId,NULL))) AS tgl25,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=26,afsAkId,NULL))) AS tgl26,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=27,afsAkId,NULL))) AS tgl27,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=28,afsAkId,NULL))) AS tgl28,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=29,afsAkId,NULL))) AS tgl29,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=30,afsAkId,NULL))) AS tgl30,
+          GROUP_CONCAT( DISTINCT CONCAT(IF(DAY(afsDatetime)=31,afsAkId,NULL))) AS tgl31,
+          SUM(CASE WHEN afsAkId='K' THEN 1 ELSE 0 END) AS KEGIATAN,
+          SUM(CASE WHEN afsAkId='U' THEN 1 ELSE 0 END) AS ULANGAN,
+          SUM(CASE WHEN afsAkId='L' THEN 1 ELSE 0 END) AS LIBUR,
+          SUM(CASE WHEN afsAkId='H' THEN 1 ELSE 0 END) AS HADIR,
+          SUM(CASE WHEN afsAkId='A' THEN 1 ELSE 0 END) AS ALPHA,
+          SUM(CASE WHEN afsAkId='B' THEN 1 ELSE 0 END) AS BOLOS,
+          SUM(CASE WHEN afsAkId='I' THEN 1 ELSE 0 END) AS IZIN,
+          SUM(CASE WHEN afsAkId='T' THEN 1 ELSE 0 END) AS TERLAMBAT,
+          SUM(CASE WHEN afsAkId='S' THEN 1 ELSE 0 END) AS SAKIT
+          ")
+        ->groupBy('afsSsaUsername')
+        ->get();
+        
+        Cache::put('cetak_rekap_absen_finger'.$skl.$rbl.$thn.$bln, $data, ChaceJam() );
+    }
+    if(empty($kepalaSekolah->ugrGelarBelakang)){
+      $fullname = $kepalaSekolah->ugrFirstName.' '.$kepalaSekolah->ugrLastName.', '.$kepalaSekolah->ugrGelarBelakang;
+    }
+    else{
+      $fullname = $kepalaSekolah->ugrGelarDepan.' '.$kepalaSekolah->ugrFirstName.' '.$kepalaSekolah->ugrLastName.', '.$kepalaSekolah->ugrGelarBelakang;
+    }
+    $params = [
+      'judul' =>'REKAPITULASI ABSENSI SEKOLAH SISWA',
+      'sekolah' =>$namaskl->sklNama,
+      'ajaran'	=>'TAHUN PELAJARAN ' .$this->getTahunAjaranNama(),
+      'rombel'	=> $namarombel->master_kelas->klsNama.' '.$namarombel->rblNama,
+      'absen' => $data,
+      'bulan'	=> bulanIndo($bln),
+      'kecamatan'	=> 'Way Jepara',
+      'kepsek'    =>'Kepala Sekolah',
+      'tgl' => tgl_indo(date('Y-m-d')),
+      'namaKepsek'  => $fullname,
+      'tahun'  => $thn,
+
+    ];
+    return view('guru/absen_sekolah/cetak_absen_sekolah')->with($params);
+    
+
+  }
+
+
 
 } //end CguruAbsensi Conttroller

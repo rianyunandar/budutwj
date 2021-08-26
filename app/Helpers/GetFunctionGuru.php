@@ -5,9 +5,10 @@
   SMK Budi Utomo Way Jepara
   Kumpulan Function Guru
 */
-use App\User_siswa;
-use App\Master_sekolah;
-use App\Master_jabatan;  
+
+use App\User_guru;
+use Illuminate\Foundation\Auth\User;
+use PhpParser\Node\Stmt\Return_;
 
 function FullNamaGuru(){
   $fullnama = strtoupper(Auth::user()->ugrFirstName.' '.Auth::user()->ugrLastName);
@@ -24,6 +25,11 @@ function NamaBelakangGuru(){
 function GetIdGuru(){
   $id = Auth::user()->ugrId; 
   return encrypt_url($id);
+
+}
+function TugasTambahanGuru(){
+  $tgs = strtoupper(Auth::user()->ugrTugasTambahan);
+  return $tgs;
 
 }
 
@@ -82,6 +88,13 @@ function GuruHakAkses(){
   }
   
   return $data;
+}
+function getKepalaSekolah($idskl){
+  $data = User_guru::where('ugrTugasTambahan','KEPSEK')
+  ->with('profile_guru')
+  ->where('ugrSklId',$idskl)
+  ->first();
+  return $data; 
 }
 
 // function GetHakAksesGuru(){

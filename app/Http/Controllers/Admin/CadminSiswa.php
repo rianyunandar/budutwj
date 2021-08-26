@@ -317,7 +317,7 @@ class CadminSiswa extends Controller
         ->get(); 
       }
 
-      $cek = Cache::put('user_siswa'.$this->getSkl(), $data, ChaceJam());
+      Cache::put('user_siswa'.$this->getSkl(), $data, ChaceJam());
     }
     //cache data redis ---------------------------------------------------------------------------
     

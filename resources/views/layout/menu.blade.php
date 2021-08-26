@@ -108,6 +108,7 @@
 					<li class="nav-item"><a href="{{ route('lihat.siswa.off') }}" class="nav-link {{set_active_submenu('lihat.siswa.off')}}"><i class="icon-user-block text-danger "></i> Siswa OFF</a></li>
 				</ul>
 			</li>
+
 <!--Master Jurusan------------------------------------------------------------------------->
 			<li class="nav-item nav-item-submenu {{set_active_menu(['lihatJurusan'])}}">
 				<a href="#" class="nav-link"><i class="icon-server"></i> <span>Master Jurusan</span></a>
@@ -144,6 +145,7 @@
 							<li class="nav-item"><a href="{{ route('add.guru') }}" class="nav-link {{set_active_submenu('add.guru')}}"><i class="icon-plus22"></i>Tambah Guru</a></li>
 							@endif
 							<li class="nav-item"><a href="{{ route('lihat.guru') }}" class="nav-link {{set_active_submenu('lihat.guru')}}"><i class="icon-users2"></i>Lihat Guru</a></li>
+							<li class="nav-item"><a href="{{ route('lihat.guru.off') }}" class="nav-link {{set_active_submenu('lihat.guru.off')}}"><i class="icon-user-block text-danger "></i>Lihat Guru OFF</a></li>
 						</ul>
 					</li>
 					{{-- wali kelas --}}
@@ -170,7 +172,7 @@
 			</li>
 <!--Master Mata Pelajaran-------------------------------------------------------------------->
 			<li class="nav-item nav-item-submenu {{set_active_menu(['add.guru','lihat.guru','tambah.wali.kelas','lihat.wali.kelas','tambah.kajur','lihat.kajur'])}}">
-				<a href="#" class="nav-link"><i class="icon-graduation2"></i> <span>Master Mapel</span></a>
+				<a href="#" class="nav-link"><i class="icon-book3"></i> <span>Master Mapel</span></a>
 				<ul class="nav nav-group-sub" data-submenu-title="Layouts" style="{{set_active_submenu_blok(['add.guru','lihat.guru','tambah.wali.kelas','lihat.wali.kelas','tambah.kajur','lihat.kajur'])}}">
 					{{-- guru --}}
 					<li class="nav-item nav-item-submenu {{set_active_menu(['add.guru','lihat.guru'])}}">
@@ -189,7 +191,7 @@
 <!--Master Informasi------------------------------------------------------------------------->		
 			@if(HakAkses())
 			<li class="nav-item nav-item-submenu {{set_active_menu(['add.informasi.sekolah','lihat.informasi.sekolah'])}}">
-				<a href="#" class="nav-link"><i class="icon-graduation2"></i> <span>Master Informasi</span></a>
+				<a href="#" class="nav-link"><i class="icon-volume-high"></i> <span>Master Informasi</span></a>
 				<ul class="nav nav-group-sub" data-submenu-title="Layouts" style="{{set_active_submenu_blok(['add.informasi.sekolah','lihat.informasi.sekolah'])}}">
 					{{-- sekolah --}}
 					<li class="nav-item nav-item-submenu {{set_active_menu(['add.informasi.sekolah','lihat.informasi.sekolah'])}}">
@@ -226,8 +228,18 @@
 				</ul>
 			</li>
 			@endif
-			<li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs">Menu Absensi</div> <i class="icon-menu" title="Main"></i></li>
+<!--Master Akun Siswa Alumni------------------------------------------------------------------------->
+		<li class="nav-item nav-item-submenu {{set_active_menu(['add.alumni','all.alumni','hapus.siswa.angkatan'])}}">
+			<a href="#" class="nav-link"><i class="icon-footprint"></i> <span>Master Alumni</span></a>
+			<ul class="nav nav-group-sub" data-submenu-title="Layouts" style="{{ set_active_submenu_blok(['add.alumni','all.alumni','hapus.siswa.angkatan']) }}">
+				<li class="nav-item"><a href="{{ route('add.alumni') }}" class="nav-link {{set_active_submenu('add.alumni')}}"><i class="icon-users2"></i> Tambah Alumni</a></li>
+				<li class="nav-item"><a href="{{ route('all.alumni') }}" class="nav-link {{set_active_submenu('all.alumni')}}"><i class="icon-archive"></i> Data Alumni</a></li>
+				<li class="nav-item"><a href="{{ route('hapus.siswa.angkatan') }}" class="nav-link {{set_active_submenu('hapus.siswa.angkatan')}}"><i class="icon-trash"></i> Hapus Data Siswa</a></li>
+				{{-- <li class="nav-item"><a href="{{ route('lihat.siswa.off') }}" class="nav-link {{set_active_submenu('lihat.siswa.off')}}"><i class="icon-user-block text-danger "></i> Alumni OFF</a></li> --}}
+			</ul>
+		</li>
 			@if(HakAkses())
+			<li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs">Menu Absensi Siswa</div> <i class="icon-menu" title="Main"></i></li>
 <!--Upload Absen Finger------------------------------------------------------------------------->	
 			<li class="nav-item"><a href="{{ route('form.import.absen.finger') }}" class="nav-link {{set_active_submenu('form.import.absen.finger')}} legitRipple"><i class="icon-upload"></i> <span>Upload Absen Finger</span></a></li>
 <!--Absen Finger------------------------------------------------------------------------->	
@@ -242,13 +254,25 @@
 <!--Rekap Absen Finger------------------------------------------------------------------------->	
 			<li class="nav-item nav-item-submenu {{set_active_menu(['asdw'])}}">
 				<a href="#" class="nav-link"><i style="font-size: 23px" class="mi-fingerprint"></i> <span>Rekap Absen Finger</span></a>
-				<ul class="nav nav-group-sub" data-submenu-title="Layouts" style="{{set_active_submenu_blok(['asdw'])}}">
-					<li class="nav-item"><a href="" class="nav-link {{set_active_submenu('asdw')}}"><i class="icon-clipboard5"></i>Rekap Absen Bulan </a></li>
+				<ul class="nav nav-group-sub" data-submenu-title="Layouts" style="{{set_active_submenu_blok(['view.rekap.absen.finger'])}}">
+					<li class="nav-item"><a href="{{ route('view.rekap.absen.finger') }}" class="nav-link {{set_active_submenu('view.rekap.absen.finger')}}"><i class="icon-clipboard5"></i>Rekap Absen Bulan </a></li>
 
 				</ul>
 			</li>
 			@endif
+			@if(HakAkses() or Auth::user()->admRole == "KEPSEK")
+			<li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs">Menu Absensi Guru</div> <i class="icon-menu" title="Main"></i></li>
+			<li class="nav-item nav-item-submenu {{set_active_menu(['add.absen.finger','lihat.absen.finger'])}}">
+				<a href="#" class="nav-link"><i style="font-size: 23px" class="mi-alarm"></i> <span>Absen Guru</span></a>
+				<ul class="nav nav-group-sub" data-submenu-title="Layouts" style="{{set_active_submenu_blok(['add.absen.finger','lihat.absen.finger'])}}">
+					{{-- <li class="nav-item"><a href="{{ route('add.absen.finger') }}" class="nav-link {{set_active_submenu('add.absen.finger')}}"><i class="icon-plus22"></i>Tambah Absen</a></li> --}}
+					<li class="nav-item"><a href="{{ route('manual.absen.guru') }}" class="nav-link {{set_active_submenu('manual.absen.guru')}}"><i class="icon-clipboard6"></i>Absen Manual</a></li>
+					<li class="nav-item"><a href="{{ route('lihat.absen.guru') }}" class="nav-link {{set_active_submenu('lihat.absen.guru')}}"><i class="icon-clipboard6"></i>Lihat Absen</a></li>
+					<li class="nav-item"><a href="{{ route('rekap.absen.guru') }}" class="nav-link {{set_active_submenu('rekap.absen.guru')}}"><i class="icon-clipboard6"></i>Rekap Absen</a></li>
 
+				</ul>
+			</li>
+			@endif
 			<!-- /main -->
 		</ul>
 	</div>

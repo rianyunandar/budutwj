@@ -5,13 +5,18 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Admin\CadminWaliKelas;
 use App\Http\Controllers\Admin\CadminAkun;
 use App\Http\Controllers\Admin\CadminMapel;
+use App\Http\Controllers\Admin\CadminSiswaAlumni;
 use App\Http\Controllers\Siswa\CsiswaHome;
 use App\Http\Controllers\Siswa\CsiswaMateri;
+use App\Http\Controllers\Siswa\CsiswaTugas;
 use App\Http\Controllers\Siswa\CsiswaBarcode;
 use App\Http\Controllers\Guru\CguruHome;
 use App\Http\Controllers\Guru\CguruAbsensi;
 use App\Http\Controllers\Guru\CguruMateri;
-
+use App\Http\Controllers\Guru\CguruTugas;
+use App\Http\Controllers\Guru\CguruTugasNilai;
+use App\Http\Controllers\Guru\CguruAbsenKehadiranGuru;
+use App\Http\Controllers\Admin\CadminAbsenGuru;
 
 
 use App\Http\Controllers\UploadFotoController;
@@ -27,10 +32,13 @@ use Illuminate\Http\Request;
 3.Router Bagian Wali
 */
 
-
+//Route::get('/redis', 'TesRedis@showProfile');
+// Route::get('/noredis', 'TesRedis@getUser');
+// Route::get('/hchace', 'TesRedis@hapusChace');
 // Route::get('/', function () {
 //     return view('login_user');
 // });
+
 //login admin
 Route::get('/budut', [LoginController::class, 'getLoginAdmin'])->name('login');
 Route::post('/login', [LoginController::class, 'CekLogin'])->name('ceklogin');
@@ -44,9 +52,7 @@ Route::get('/hapus-key-redis/{id}',function (Request $request){ hapusKeyRedis($r
 
 Route::get('/cek-data/{id}', [CsiswaBarcode::class, 'ViewDataBarcode'])->name('cek-data-siswa');
 
-//Route::get('/redis', 'TesRedis@showProfile');
-// Route::get('/noredis', 'TesRedis@getUser');
-// Route::get('/hchace', 'TesRedis@hapusChace');
+
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web','auth:admin,guru']], function () {
 	\UniSharp\LaravelFilemanager\Lfm::routes();
 });
@@ -108,6 +114,14 @@ Route::group(['prefix' => 'crew', 'middleware' => ['auth:admin']], function(){
 	Route::get('/rincian-siswa', 'Admin\CadminSiswa@RincianSiswa')->name('rincian.siswa');
 	Route::get('/rincian-agama-siswa', 'Admin\CadminSiswa@RincianAgamaSiswa')->name('rincian.agama.siswa');
 	Route::get('/rincian-transpot-siswa', 'Admin\CadminSiswa@RincianTranspotSiswa')->name('rincian.transpot.siswa');
+
+//Alumni Siswa 08-6-2020 ----------------------------------------------------------------------------------------------
+	Route::get('/add-alumni', [CadminSiswaAlumni::class, 'add'])->name('add.alumni');
+	Route::get('/all-alumni', [CadminSiswaAlumni::class, 'allAlumni'])->name('all.alumni');
+	Route::post('/insert-alumni',  [CadminSiswaAlumni::class, 'Insert'])->name('insert.alumni');
+	Route::get('/json-data-alumni', [CadminSiswaAlumni::class, 'JsonDataAlumni'])->name('json.alumni');
+	Route::get('/hapus-siswa-angkatan', [CadminSiswaAlumni::class, 'hapusSiswaAngkatan'])->name('hapus.siswa.angkatan');
+	Route::post('/hapus-siswa-by-angkatan',  [CadminSiswaAlumni::class, 'hapusSiswaByAngkatan'])->name('hapus.siswa.by.angkatan');
 	
 	
 	//import data siswa ----------------------------------------------------------------------------------------------
@@ -166,7 +180,9 @@ Route::group(['prefix' => 'crew', 'middleware' => ['auth:admin']], function(){
 
 //Bagian guru ------------------------------------------------------------------------------------------------
 	Route::get('/lihat-guru', 'Admin\CadminGuru@lihatGuru')->name('lihat.guru');
+	Route::get('/lihat-guru-off', 'Admin\CadminGuru@lihatGuruOff')->name('lihat.guru.off');
 	Route::get('/json-guru', 'Admin\CadminGuru@jsonGuru')->name('json.guru');
+	Route::get('/json-guru-off', 'Admin\CadminGuru@jsonGuruOff')->name('json.guru.off');
 	Route::get('/addguru', 'Admin\CadminGuru@add')->name('add.guru');
 	Route::get('{id}/edit-guru','Admin\CadminGuru@editGuru')->name('edit.guru');
 	Route::post('/insertguru', 'Admin\CadminGuru@InsertGuru')->name('insert.guru');
@@ -224,6 +240,11 @@ Route::group(['prefix' => 'crew', 'middleware' => ['auth:admin']], function(){
   Route::put('/update-absen-finger/{id}','Admin\CadminAbsenFinger@UpdateAbsenFinger');
 	Route::put('/{id}/delete-absen-finger','Admin\CadminAbsenFinger@deleteAbsenFinger');
 
+	//rekap absen sekolah siswa atau rekap absen fingerprint 02-08-2021 -----------------------------------------------------
+	Route::get('/view-rekap-absen-finger', 'Admin\CadminAbsenFinger@ViewRekapAbsenFinger')->name('view.rekap.absen.finger');
+	Route::get('/cetak-view-rekap-absen-finger', 'Admin\CadminAbsenFinger@CetakViewRekapAbsenFinger')->name('cetak.view.rekap.absen.finger');
+
+
 //Bagian Informasi -----------------------------------------------------------------------------------------------------------
 	Route::get('/add-informasi-sekolah', 'Admin\CadminInformasi@AddInformasi')->name('add.informasi.sekolah');
 	Route::get('/edit-informasi-sekolah/{id}', 'Admin\CadminInformasi@EditInformasi');
@@ -242,6 +263,17 @@ Route::group(['prefix' => 'crew', 'middleware' => ['auth:admin']], function(){
 	Route::post('/insert-mapel', [CadminMapel::class, 'insertMapel'])->name('insert.mapel');
 	Route::put('/update-mapel', [CadminMapel::class, 'updateMapel'])->name('update.mapel');
 	Route::get('/json-mapel', [CadminMapel::class, 'jsonGetMapel'])->name('json.mapel');
+
+//Absensi Guru----------------------------------------------------------------------------------------------
+	Route::get('/lihat-absen-guru', [CadminAbsenGuru::class, 'view'])->name('lihat.absen.guru');
+	Route::get('/json-absen-guru', [CadminAbsenGuru::class, 'jsonAbsenGuru'])->name('json.absen.guru');
+	Route::get('/rekap-absen-guru', [CadminAbsenGuru::class, 'rekapAbsenGuru'])->name('rekap.absen.guru');
+	Route::get('/json-cetak-absen-guru', [CadminAbsenGuru::class, 'JsonCetakRekapAbsenGuru'])->name('json.cetak.absen.guru');
+	Route::get('/cetak-absen-guru', [CadminAbsenGuru::class, 'CetakRekapAbsenGuru'])->name('cetak.absen.guru');
+	Route::get('/absen-guru-manual', [CadminAbsenGuru::class, 'ManualAbsenGuru'])->name('manual.absen.guru');
+	Route::put('/insert-absen-manual-guru', [CadminAbsenGuru::class, 'InsertAbsenManualGuru'])->name('insert.absen.manual.guru');
+
+	Route::get('/insert-absen-guru-random', [CadminAbsenGuru::class, 'randomInsertDataGuru']);
 
 
 }); //end route admin
@@ -276,6 +308,9 @@ Route::group(['prefix' => 'crew', 'middleware' => ['auth:admin']], function(){
 		//materi -------------------------------------------------------
 		Route::get('/list-jadwal-mapel', [CsiswaMateri::class, 'ListJadwalMapel'])->name('list.jadwal.mapel');
 		Route::get('/baca-materi-siswa/{id}', [CsiswaMateri::class, 'BacaMateriSiswa'])->name('baca.materi.siswa');
+		//Tugas 05-08-2021 ------------------------------------------------------------------------------------------
+		Route::get('/list-tugas-mapel', [CsiswaTugas::class, 'ListMapelTugas'])->name('list.tugas.siswa');
+		Route::get('/baca-tugas-siswa/{id}', [CsiswaTugas::class, 'BacaTugasSiswa'])->name('baca.tugas.siswa');
 
 			
 	});
@@ -294,6 +329,11 @@ Route::group(['prefix' => 'guru', 'middleware' => ['auth:guru']], function(){
 	Route::get('/guru-data-siswa-json', [CguruHome::class, 'GuruDataSiswaJson'])->name('guru.data.siswa.json');
 	Route::post('/guru-upload-foto', [UploadFotoController::class, 'UploadFotoGuru'])->name('guru.upload.foto');
 
+	//absensi kehadiran guru
+	Route::get('/guru-absen-sekolah', [CguruAbsenKehadiranGuru::class, 'viewAbsenGuru'])->name('guru.absen.sekolah');
+	Route::post('/insert-absen-kehadiran-guru', [CguruAbsenKehadiranGuru::class, 'insert'])->name('insert.absen.kehadiran.guru');
+	Route::get('/json-log-absen-guru-sekolah', [CguruAbsenKehadiranGuru::class, 'JsonLogAbsensiGuruSekolah'])->name('json.log.absensi.guru.sekolah');
+
 	//jadwal mapel absensi ---------------------------------------------------
 	Route::get('/guru-jadwal-mapel-absen', [CguruAbsensi::class, 'GuruJadwalMapelAbsen'])->name('guru.jadwal.mapel.absen');
 	Route::get('/json-guru-jadwal-mapel', [CguruAbsensi::class, 'JsonGuruJadwalMapel'])->name('json.guru.jadwal.mapel');
@@ -302,13 +342,17 @@ Route::group(['prefix' => 'guru', 'middleware' => ['auth:guru']], function(){
 	Route::put('/update-jadwal',[CguruAbsensi::class, 'GuruUpdateJadwal'])->name('guru.update.jadwal.mapel');
 	
 	Route::get('/mapel-absen-manual-guru', [CguruAbsensi::class, 'MapelAbsenManualGuru'])->name('mapel.absen.manual.guru');
+	Route::get('/mapel-absen-manual-guru-izin', [CguruAbsensi::class, 'MapelAbsenManualGuruIzin'])->name('mapel.absen.manual.guru.izin');
 	Route::get('/rincian-mapel-absen-guru', [CguruAbsensi::class, 'RincianMapelAbsenGuru'])->name('rincian.mapel.absen.guru');
 	Route::get('/total-mapel-absen-guru-bulan', [CguruAbsensi::class, 'TotalMapelAbsenGuruBulan'])->name('total.mapel.absen.guru.bulan');
+	Route::get('/total-all-absen-guru', [CguruAbsensi::class, 'TotalALLMapelAbsenGuru'])->name('total.mapel.all.guru');
 	Route::get('/rekap-mapel-absen-guru-bulan', [CguruAbsensi::class, 'RekapMapelAbsenGuruBulan'])->name('rekap.mapel.absen.bulan.guru');
 	
 	Route::put('/insert-mapel-absen-manual-guru', [CguruAbsensi::class, 'InsertMapelAbsenManualGuru'])->name('insert.mapel.absen.manual.guru');
+	Route::put('/insert-mapel-absen-izin-guru', [CguruAbsensi::class, 'InsertMapelAbsenIzinGuru'])->name('insert.mapel.absen.izin.guru');
 	Route::get('/json-rekap-absen-mapel/', [CguruAbsensi::class, 'JsonRekapAbsenMapel'])->name('json.rekap.absen.mapel');
 	Route::get('/json-total-absen-mapel/', [CguruAbsensi::class, 'JsonTotalAbsenMapel'])->name('json.total.absen.mapel');
+	Route::get('/json-tota-all-absen-mapel/', [CguruAbsensi::class, 'JsonTotalAllAbsenMapel'])->name('json.total.all.absen.mapel');
 	Route::get('/cetak-absen-mapel-detail', [CguruAbsensi::class, 'CetakAbsenMapelDetail'])->name('cetak.absen.mapel.detail');
 	
 	//Elearning --------------------------------------------------------------------
@@ -319,17 +363,46 @@ Route::group(['prefix' => 'guru', 'middleware' => ['auth:guru']], function(){
 	Route::put('/edit-data-materi-rombel/', [CguruMateri::class, 'editDataMateriRombel'])->name('edit.data.materi.rombel');
 
 	Route::get('/lihat-materi', [CguruMateri::class, 'LihatMateri'])->name('lihat.materi');
-	//crud
+	//crudm ateri
 	Route::get('/json-materi', [CguruMateri::class, 'JsonMateri'])->name('json.materi');
 	Route::post('/insert-materi', [CguruMateri::class, 'InsertMateri'])->name('insert.materi');
 	Route::put('/{id}/delete-materi', [CguruMateri::class, 'DeleteMateri'])->name('delete.materi');
 	Route::post('/update-materi', [CguruMateri::class, 'UpdateMateri'])->name('update.materi');
 	Route::put('/hapus-materi-rombel', [CguruMateri::class, 'DeleteMateriRombel'])->name('delete.materi.rombel');
 	Route::post('/update-materi-rombel', [CguruMateri::class, 'UpdateMateriRombel'])->name('update.materi.rombel');
+
+	//Tugas  05-08-2021-----------------------------------------------------------------------
+	Route::get('/add-tugas', [CguruTugas::class, 'addTugas'])->name('add.tugas.guru');
+	Route::get('/lihat-tugas', [CguruTugas::class, 'LihatTugas'])->name('lihat.tugas.guru');
+	Route::get('/json-tugas', [CguruTugas::class, 'JsonTugas'])->name('json.tugas.guru');
+	Route::get('/edit-tugas/{id}', [CguruTugas::class, 'editTugas'])->name('edit.tugas');
+	Route::get('/edit-tugas-rombel/{id}/{idd}', [CguruTugas::class, 'editTugasRombel'])->name('edit.tugas.rombel.guru');
 	
+	//crud tugas
+	Route::post('/insert-tugas', [CguruTugas::class, 'InsertTugas'])->name('insert.tugas.guru');
+	Route::post('/update-tugas', [CguruTugas::class, 'UpdateTugas'])->name('update.tugas.guru');
+	Route::post('/update-tugas-rombel', [CguruTugas::class, 'UpdateTugasRombel'])->name('update.tugas.rombel.guru');
+	Route::put('/edit-data-tugas-rombel/', [CguruTugas::class, 'editDataTugasRombel'])->name('edit.data.tugas.rombel.guru');
+	Route::put('/hapus-tugas-rombel', [CguruTugas::class, 'DeleteTugasRombel'])->name('delete.tugas.rombel.guru');
+	Route::put('/{id}/delete-tugas', [CguruTugas::class, 'DeleteTugas'])->name('delete.tugas.guru');
+
+  //Penilaian Tugas  17-08-2021-----------------------------------------------------------------------
+	Route::get('/add-nilai-tugas', [CguruTugasNilai::class, 'addTugasNilai'])->name('add.tugas.nilai.guru');
+	Route::get('/rekap-nilai-tugas', [CguruTugasNilai::class, 'rekapTugasNilai'])->name('rekap.tugas.nilai.guru');
+	//crud Penilaian Tugas
+	Route::put('/insert-nilai-tugas-guru', [CguruTugasNilai::class, 'insertNilaiTugas'])->name('insert.nilai.tugas.guru');
+
+
+	//Absensi FingerPrint Siswa 02-08-2021----------------------------------------------------------------
+	Route::get('/lihat-absen-sekolah-guru', [CguruAbsensi::class, 'LihatAbsenSekolah'])->name('lihat.absen.sekolah.guru');
+	Route::get('/json-absen-sekolah-guru', [CguruAbsensi::class, 'jsonAbsenFinger'])->name('json.absen.sekolah.guru');
+	Route::get('/view-rekap-absen-sekolah-guru', [CguruAbsensi::class, 'ViewRekapAbsenFinger'])->name('view.rekap.absen.sekolah.guru');
+	Route::get('/cetak-rekap-absen-sekolah-guru', [CguruAbsensi::class, 'CetakViewRekapAbsenFinger'])->name('cetak.rekap.absen.sekolah.guru');
+
+
 
 });
-//End Router untuk Siswa------------------------------------------------------
+//End Router untuk Guru------------------------------------------------------
 
 
 // 4.Router Untuk Wali -------------------------------------------------------

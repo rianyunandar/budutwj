@@ -24,3 +24,7 @@ Route::get('apiuseroff/{token}/{id}', [ApiUser::class, 'getUserOff']);
 Route::get('apirombel/{token}/{id}', [ApiUser::class, 'getRombel']);
 Route::get('apijurusan/{token}/{id}', [ApiUser::class, 'getJurusan']);
 Route::get('apiguru/{token}/{id}', [ApiUser::class, 'getGuru']);
+Route::get('apiguruoff/{token}/{id}', [ApiUser::class, 'getGuruOff']);
+
+//
+Route::get('apijurusanall/{token}', [ApiUser::class, 'getJurusanAll']);

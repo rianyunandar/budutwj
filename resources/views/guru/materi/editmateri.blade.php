@@ -97,6 +97,10 @@
 							<label><b>ID Yotube</b></label><br>
 							<input value="{{ $getMateri->materiIdYotube}}" name="idyotube" class="form-control" placeholder="Jika ingin membagi video Yotube" />
 						</div>
+						<div class="col-md-4 pb-2">
+							<label><b>Link Url Download File Materi</b></label><br>
+							<input value="{{ $getMateri->materiFile}}" name="materifile" class="form-control" placeholder="Seperti Link Google Drive atau Lainya" />
+						</div>
 					</div>
 
 					<div class="row">

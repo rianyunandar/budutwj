@@ -9,6 +9,8 @@ if(!empty($_GET['bln'])){
 $jamMasuk= strtotime(getJamMasukSekolah());
 $jamTerlambat = strtotime(getJamTerlamabtSekolah());
 $jamNow = strtotime(date("H:i"));
+$hariNow = date("l");
+
 ?>
 <!-- Content area -->
 <div class="content">
@@ -40,12 +42,17 @@ $jamNow = strtotime(date("H:i"));
 										<h5 class="card-title">{!! $labelkehadiran !!}</h5>
 										<p class="mb-3">{!! $pesankehadiran !!}</p>
 										<p class="mb-3">Jam Mulai Absen {{ getJamMasukSekolah() }} <br> Batas Absen Masuk Jam {{ getJamTerlamabtSekolah() }}</p>
-										@if($jamNow >= $jamMasuk AND $jamNow <= $jamTerlambat)
-											<button id="absensekolah" class="btn bg-blue">{!! $btnkehadiran !!}</button>
-										@elseif($jamNow > $jamTerlambat )
-											<button id="absensekolah" class="btn bg-warning">{!! $btnkehadiran !!}</button>
+										@if($hariNow == 'Saturday' OR $hariNow == 'Sunday')
+										<button disabled class="btn bg-primary">Libur Sekolah</button>
 										@else
-										<button disabled class="btn bg-grey-500">Belum Waktunya</button>
+											@if($jamNow >= $jamMasuk AND $jamNow <= $jamTerlambat)
+												<button id="absensekolah" class="btn bg-blue">{!! $btnkehadiran !!}</button>
+											@elseif($jamNow > $jamTerlambat )
+												<button id="absensekolah" class="btn bg-warning">{!! $btnkehadiran !!}</button>
+											
+											@else
+											<button disabled class="btn bg-grey-500">Belum Waktunya</button>
+											@endif
 										@endif
 									</div>
 								</div>

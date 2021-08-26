@@ -92,6 +92,18 @@
 								</div>
 							</div>
 							<div class="form-group row">
+								<label class="col-lg-3 col-form-label">Gelar Depan </label>
+								<div class="col-lg-9">
+									<input value="{{ $guru->ugrGelarDepan}}" type="text" name="gdepan" class="form-control" placeholder="Nama Depan Guru">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-lg-3 col-form-label">Gelar Belakang</label>
+								<div class="col-lg-9">
+									<input value="{{ $guru->ugrGelarBelakang}}" type="text" name="gbelakang" class="form-control" placeholder="Nama Depan Guru">
+								</div>
+							</div>
+							<div class="form-group row">
 								<label class="col-lg-3 col-form-label">Nama Depan *</label>
 								<div class="col-lg-9">
 									<input value="{{ $guru->ugrFirstName}}" required type="text" name="firstname" class="form-control" placeholder="Nama Depan Guru">
@@ -100,13 +112,13 @@
 							<div class="form-group row">
 								<label class="col-lg-3 col-form-label">Nama Belakang *</label>
 								<div class="col-lg-9">
-									<input value="{{ $guru->ugrLastName}}" required type="text" name="lastname" class="form-control" placeholder="Nama Belakang Guru">
+									<input value="{{ $guru->ugrLastName}}" type="text" name="lastname" class="form-control" placeholder="Nama Belakang Guru">
 								</div>
 							</div>
 							<div class="form-group row">
 								<label class="col-lg-3 col-form-label">Nama Lengkap *</label>
 								<div class="col-lg-9">
-									<input value="{{ $guru->ugrFullName}}" required type="text" name="fullname" class="form-control" placeholder="Nama Lengkap Guru">
+									<input value="{{ $guru->ugrFullName}}" type="text" name="fullname" class="form-control" placeholder="Nama Lengkap Guru">
 								</div>
 							</div>
 							<div class="form-group row">
@@ -285,6 +297,22 @@
 								<label class="col-lg-3 col-form-label">Tahun Masuk di Sekolah</label>
 								<div class="col-lg-9">
 									<input value="{{$guru->profile_guru->prgTahunMasuk}}" type="text" name="thn1" placeholder="Tahun" class="form-control">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-lg-3 col-form-label">User Aktif</label>
+								<div class="col-lg-9">
+									<select required data-placeholder="User Aktif"  name="aktifuser" id="aktifuser"  class="form-control select-fixed-single" data-fouc>
+										<option></option>
+										<option {{ selectAktif($guru->ugrIsActive,1) }} value="1">AKTIF</option>
+										<option {{ selectAktif($guru->ugrIsActive,0) }} value="0">NON AKTIF</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-lg-3 col-form-label">Keterangan Guru</label>
+								<div class="col-lg-9">
+									<input value="{{$guru->ugrKeterangan}}" type="text" name="ktrugr" placeholder="Keterangan Guru Aktif atau Tidak Aktif" class="form-control">
 								</div>
 							</div>
 						</fieldset>

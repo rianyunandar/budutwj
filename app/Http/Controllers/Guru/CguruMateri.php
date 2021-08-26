@@ -140,6 +140,8 @@ function InsertMateri(Request $request){
 	//$materi->materiTglSelesai			= $request->skl;
 	//$materi->materiLink						= $request->skl;
 	$materi->materiIdYotube				= $request->idyotube;
+	$materi->materiFile						= $request->materifile;
+
 	$materi->materiPesanSingkat		= $request->pesan_singkat;
 	$materi->materiTampil					= $request->status;
 	$materi->materiKi							= $request->ki;
@@ -216,6 +218,7 @@ function UpdateMateri(Request $request){
 	//$materi->materiTglSelesai			= $request->skl;
 	//$materi->materiLink						= $request->skl;
 	$materi->materiIdYotube				= $request->idyotube;
+	$materi->materiFile						= $request->materifile;
 	$materi->materiPesanSingkat		= $request->pesan_singkat;
 	$materi->materiTampil					= $request->status;
 	$materi->materiKi							= $request->ki;

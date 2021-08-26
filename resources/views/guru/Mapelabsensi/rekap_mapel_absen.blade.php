@@ -86,6 +86,7 @@ if(!empty($_GET['skl'])){
 								<th>JAM ABSEN</th>
 								<th>STATUS</th>
 								<th>CEK</th>
+								<th>KETERANGAN</th>
 								
 							</tr>
 						</thead>
@@ -250,6 +251,7 @@ var tabel = $('#tabel').DataTable({
 		{ "data": "abmpJamin" },
 		{ "data": "status" },
 		{ "data": "usercek" },
+		{ "data": "keterangan" },
 		],
 		responsive: { details: { type: 'column' } },
 		columnDefs: [

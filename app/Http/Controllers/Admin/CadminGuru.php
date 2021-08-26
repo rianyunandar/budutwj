@@ -86,6 +86,14 @@ class CadminGuru extends Controller
 		];
 		return view('crew/guru/viewguru')->with($params);
 	}
+  public function lihatGuruOff()
+	{	
+		$params = [
+			'title'	=>'Data Guru OFF',
+			'label'	=>'FORM DATA GURU OFF',
+		];
+		return view('crew/guru/viewguruoff')->with($params);
+	}
   public function editGuru($id)
   {
     $idd = Crypt::decrypt($id);
@@ -170,6 +178,10 @@ class CadminGuru extends Controller
       $guru = new User_guru();
       $guru->ugrUsername = request()->ugrUsername;
       $guru->ugrPassword = Hash::make(request()->password);
+
+      $guru->ugrGelarDepan = request()->gdepan;
+			$guru->ugrGelarBelakang = request()->gbelakang;
+
       $guru->ugrFirstName = strtoupper(request()->firstname);
       $guru->ugrLastName = strtoupper(request()->lastname);
       $guru->ugrFullName = strtoupper(request()->fullname);
@@ -253,7 +265,11 @@ class CadminGuru extends Controller
     else{ 
       $guru = User_guru::find($idd);
       $guru->ugrUsername = request()->ugrUsername;
-      $guru->ugrPassword = Hash::make(request()->password);
+      //$guru->ugrPassword = Hash::make(request()->password);
+
+      $guru->ugrGelarDepan = request()->gdepan;
+			$guru->ugrGelarBelakang = request()->gbelakang;
+      
       $guru->ugrFirstName = strtoupper(request()->firstname);
       $guru->ugrLastName = strtoupper(request()->lastname);
       $guru->ugrFullName = strtoupper(request()->fullname);
@@ -266,6 +282,9 @@ class CadminGuru extends Controller
       $guru->ugrEmail = request()->email;
       $guru->ugrUpdated = date("Y-m-d H:i:s");
       $guru->ugrUpdatedBy = Auth::user()->admId;
+      $guru->ugrIsActive = request()->aktifuser;
+      $guru->ugrKeterangan = request()->ktrugr;
+      
 
       //Profile Guru
       $profil = Profile_guru::where('prgUgrUsername',request()->ugrUsername2)->first();
@@ -349,6 +368,73 @@ class CadminGuru extends Controller
         }
         else{ $data = User_guru::where('ugrSklId',$this->getSkl())
         ->where('ugrIsActive',1)
+        ->with('master_sekolah','master_jabatan')
+        ->get(); }
+      //   $cek = Cache::put('user_guru'.$this->getSkl(), $data, ChaceJam());
+      // }
+    //Cache Redish ---------------------------------------------------------------------------------------
+    foreach ($data as $value) {
+      $data2['id'] =$value->ugrId;
+      $data2['username'] =$value->ugrUsername;
+      $data2['nama'] =$value->ugrFirstName.' '.$value->ugrLastName;
+      $data2['jabatan'] =$value->ugrRole;
+      $data2['sekolah'] =$value->master_sekolah['sklKode'];
+      $data3[]=$data2;
+    }
+
+    $dt= DataTables::of($data3)
+    ->addColumn('jabatan',function ($data3) { 
+      //----unserialize jabatan --------------------------------------------
+      if(empty($data3['jabatan'])){
+        return  null;
+      }
+      else{
+          $jataban = unserialize($data3['jabatan']);
+          foreach($jataban as $valuerole) {
+           $jabatan2 = Master_jabatan::where('mjbKode',$valuerole)->first();
+           $jabatan3[]=$jabatan2->mjbNama;
+          }
+          $implode = implode(', ',$jabatan3);
+        return  $implode;
+      }
+      //----unserialize jabatan --------------------------------------------
+    })
+    ->addColumn('aksi',function ($data3) { 
+      $id = Crypt::encrypt($data3['id']);
+      
+      if(AksiUpdate()){
+        $button = '<a href="'.$id.'/edit-guru" title="Edit Data" class="dropdown-item btn btn-sm btn-outline bg-primary text-primary border-primary legitRipple" ><i class="icon-pencil7"> Edit</i></a>';
+        $button .='<a title="Reset Password" id="resetpass" class="dropdown-item btn btn-sm btn-outline bg-warning text-warning border-warning legitRipple" data-id="'.$id.'"><i class="icon-reset"> Reset Password </i></a>';  
+      }else{ $button = '<a title="No Akses" class="dropdown-item btn btn-sm btn-outline bg-danger text-danger border-danger legitRipple" ><i class="icon-cancel-circle2"> No Akses</i></a>';  }
+        if(AksiDelete()){
+          $button .='<a title="Hapus Data" id="deletejurusan" class="dropdown-item btn btn-sm btn-outline bg-danger text-danger border-danger legitRipple" data-id="'.$id.'"><i class="icon-trash"> Hapus</i></a>';
+        }
+        $return  = '<ul class="list-inline list-inline-condensed mb-0 mt-2 mt-sm-0">
+          <li class="list-inline-item dropdown">
+            <a href="#" class="text-default dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+              '.$button.'
+            </div>
+          </li>
+        </ul>';
+        return $return;
+        
+    })->rawColumns(['aksi']);
+    return $dt->make(true); 
+    // $data = User_guru::with('master_sekolah','master_jabatan','master_jurusan','master_rombel')->get(); 
+    // return $data;
+  }
+  public function jsonGuruOff()
+  {
+    
+    //Cache Redish ---------------------------------------------------------------------------------------
+      // if (Cache::has('user_guru'.$this->getSkl())){ $data = Cache::get('user_guru'.$this->getSkl()); }
+      // else{ 
+        if(empty($this->getSkl())){ 
+          $data = User_guru::with('master_sekolah','master_jabatan')->where('ugrIsActive',0)->get(); 
+        }
+        else{ $data = User_guru::where('ugrSklId',$this->getSkl())
+        ->where('ugrIsActive',0)
         ->with('master_sekolah','master_jabatan')
         ->get(); }
       //   $cek = Cache::put('user_guru'.$this->getSkl(), $data, ChaceJam());

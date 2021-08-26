@@ -64,12 +64,15 @@ if(!empty($_GET['rbl'])){ $getrbl =$_GET['rbl']; } else{ $getrbl =''; }
 					<button type="submit" class="btn btn-info">Klik Untuk Absen Siswa</button>
 				</div>
 				<div class="col-md-12">
+					<h2>Silhakan Pilih Siswa yang akan di absen</h2>
 					<table id="tabel" class="table table-striped table-bordered  ">
 						<thead style="background-color: #05405a; color: white;">
 							<tr>
 								<th> ALL<input type="checkbox" id='checkall' class="form-check-input-styled-success" ></th>
 								<th>NAMA SISWA</th>
 								<th>USERNAME SISWA</th>
+								<th>STATUS</th>
+								<th>KETERANGAN</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -79,6 +82,21 @@ if(!empty($_GET['rbl'])){ $getrbl =$_GET['rbl']; } else{ $getrbl =''; }
 										<td><input value="{{ $data->ssaUsername }}" type="checkbox" id="{{ $no++ }}" name="cekpilih[]" class="cekpilih" ></td>
 										<td>{{ $data->ssaFirstName.' '.$data->ssaLastName }}</td>
 										<td>{{ $data->ssaUsername }}</td>
+										<td>
+											<select required data-placeholder="Pilih Absen"  name="status[{{ $data->ssaUsername }}]" id="status[{{ $data->ssaUsername }}]"  class="form-control select-search" data-fouc>
+												<option value="H">HADIR</option>
+												<option value="B">BOLOS</option>
+												<option value="S">SAKIT</option>
+												<option value="I">IZIN</option>
+												<option value="T">TERLAMBAT</option>
+												<option value="A">ALPHA</option>
+												<option value="K">KEGIATAN</option>
+												<option value="U">UJIAN</option>
+											</select>
+										</td>
+										<td>
+											<textarea  class="form-control"  name="ktr[{{ $data->ssaUsername }}]" placeholder="Keterangan"></textarea>
+										</td>
 									</tr>
 							@endforeach
 						</tbody>

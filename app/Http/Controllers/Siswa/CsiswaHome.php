@@ -350,6 +350,7 @@ class CsiswaHome extends Controller
    
     $siswa = User_siswa::find($this->getIdSiswa());
     $siswa->ssaPassword  = Hash::make($request->newpassword);
+    $siswa->ssaPassword2  = $request->newpassword;
     $siswa->ssaUpdated = date("Y-m-d H:i:s");
     $siswa->ssaUpdatedBy = Auth::user()->ssaId;
     if($siswa->save()){ 
@@ -533,7 +534,7 @@ class CsiswaHome extends Controller
 
   }
   //tambah abseni sekolah ---------------------------
-  function InsertAbsensisekolahSiswa(){
+  function InsertAbsensisekolahSiswa(Request $request){
     $namahari = date('l');
     $tgl = date('Y-m-d');
     $jamsekarang = date("H:i");
@@ -576,6 +577,7 @@ class CsiswaHome extends Controller
       $absen->afsJenis = 3;
       $absen->afsSemester = $semster;
       $absen->afsTahunAjaran = $tahunajaran;
+      $absen->afsIp = $request->ip();
       
         if($absen->save()){
           Cache::forget('absen_sekolah'.$idsiswa.$bulan);

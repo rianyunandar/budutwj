@@ -4,7 +4,7 @@
   Way Jepara
   SMK Budi Utomo Way Jepara
   Kumpulan Function Dashbord Admin
-
+  Absensi Pada Siswa
 -------------------------------------*/
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -163,7 +163,9 @@ function IsAcktive(){
   function HakAkses(){
     //cek hak askes admin apakah superadmin
     $data = Auth::user()->admRole;
-    if($data == "SUPERADMIN"){ $aksi = true; }else{ $aksi = false; }
+    if($data == "SUPERADMIN"){ 
+      $aksi = true; }
+    else{ $aksi = false; }
     return $aksi;
   }
   function KodeHakAkses(){
@@ -721,7 +723,7 @@ function IsAcktive(){
     $jamTerlamabr = $jamSekolah->jamBatasTerlambar;
 
     if($jam >= $jamMasuk AND $jam <=$jamTerlamabr ){
-      $satus = 'H';
+      $status = 'H';
     }
     else{
       $status = 'T';

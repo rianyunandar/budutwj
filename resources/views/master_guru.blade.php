@@ -29,6 +29,8 @@
 	<script src="{{ asset('global_assets/js/plugins/loaders/blockui.min.js')}}"></script>
 	<script src="{{ asset('global_assets/js/plugins/ui/ripple.min.js')}}"></script>
 	<script src="{{ asset('global_assets/js/plugins/ui/sticky.min.js')}}"></script>
+	<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.3/summernote.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 
 	<!-- /core JS files -->
 

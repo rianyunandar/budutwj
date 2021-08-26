@@ -31,7 +31,9 @@
 					@endif
 					<ul class="nav nav-tabs nav-tabs-bottom nav-justified">
 						<li class="nav-item"><a href="#justified-right-icon-tab1" class="nav-link active" data-toggle="tab"><b>Materi </b></a></li>
-						<li class="nav-item"><a href="#justified-right-icon-tab2" class="nav-link" data-toggle="tab"><b>Download </b></a></li>
+						@if(!empty($datamateri->materiFile))
+							<li class="nav-item"><a href="#justified-right-icon-tab2" class="nav-link" data-toggle="tab"><b>Download </b></a></li>
+						@endif
 						@if(!empty($datamateri->materiIdYotube))
 							<li class="nav-item">
 								<a href="#justified-right-icon-tab3" class="nav-link" data-toggle="tab"><b>Link Video </b>
@@ -46,10 +48,14 @@
 							{!! $datamateri->materiIsi !!}
 						</div>
 						
+						@if(!empty($datamateri->materiFile))
 						{{-- download file --}}
 						<div class="tab-pane fade" id="justified-right-icon-tab2">
-							
+							<label class="text-muted" >Silahkan Klik untuk Mendownload Materinya</label><br>
+							<a target="_blank" class="btn btn-primary" href="{{ $datamateri->materiFile }}"><i class="icon-download"></i> Download Materi</a>
+							<br><br>
 						</div>
+						@endif
 						
 						@if(!empty($datamateri->materiIdYotube))
 						{{-- link video --}}

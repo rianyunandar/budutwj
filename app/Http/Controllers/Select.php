@@ -251,7 +251,6 @@ class Select extends Controller
           ->where('majdKlsKode',$kelas)
           ->select('majdMapelKode','majdNama')
           ->groupby('majdMapelKode')
-          ->distinct()
           ->get();
         }
         else{
@@ -260,7 +259,6 @@ class Select extends Controller
           ->where('majdKlsKode',$kelas)
           ->select('majdMapelKode','majdNama')
           ->groupby('majdMapelKode')
-          ->distinct()
           ->get();
         }
         
@@ -325,6 +323,7 @@ class Select extends Controller
     $data[] = array('value' => 'ssaEmail','nama'=>'Email');
     $data[] = array('value' => 'ssaQrCode','nama'=>'Barcode');
     $data[] = array('value' => 'ssaTahunAngkata','nama'=>'Tahun Angkata');
+    $data[] = array('value' => 'ssaAgama','nama'=>'Agama Siswa');
 
     $data[] = array('value' => 'psJsk','nama'=>'Jenis Kelamin');
     $data[] = array('value' => 'psTpl','nama'=>'Tempat Lahir');
@@ -333,11 +332,11 @@ class Select extends Controller
     $data[] = array('value' => 'psNisn','nama'=>'NISN');
     $data[] = array('value' => 'psNik','nama'=>'NIK');
     $data[] = array('value' => 'psNoKK','nama'=>'No KK');
-    $data[] = array('value' => 'psAgama','nama'=>'Agama');
+    
     $data[] = array('value' => 'psHobi','nama'=>'Hobi Siswa');
     $data[] = array('value' => 'psTinggiBadan','nama'=>'Tinggi Badan Siswa');
 
-    $data[] = array('value' => 'psJarak','nama'=>'Agama Siswa');
+    $data[] = array('value' => 'psJarak','nama'=>'Jarak Ke Sekolah');
     $data[] = array('value' => 'psAlamat','nama'=>'Alamat Siswa');
     $data[] = array('value' => 'psRt','nama'=>'RT');
     $data[] = array('value' => 'psRw','nama'=>'RW');

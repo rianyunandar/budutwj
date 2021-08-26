@@ -122,6 +122,12 @@
 					<span>MATERI</span>
 				</a>
 			</li>
+			<li class="nav-item">
+				<a href="{{ route('list.tugas.siswa') }}" class="nav-link">
+					<i class="icon-bookmark text-primary font-size-icon"></i> 
+					<span>TUGAS</span>
+				</a>
+			</li>
 			
 
 			{{-- <li class="nav-item">

@@ -12,3 +12,16 @@ WEB APLIKASI
  *Materi
 -Siswa
  *materi
+
+
+11 Agustus 2021
+
+DATABASE
+-tabel el_tugas
+-tabel el_tugas_anggota_rombel
+
+WEB APLIKASI
+-Guru
+ *Tugas
+-Siswa
+ *Tugas

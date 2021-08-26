@@ -353,6 +353,7 @@ class ApiUser extends Controller
 		return response()->json($response,200);
 
 	}
+	
 // Data Guru --------------------------------------------------------------------
 	public function getGuru($token,$id){
 		if($token == $this->Toket()){
@@ -362,6 +363,7 @@ class ApiUser extends Controller
     			->with('master_jabatan')
     			->with('master_jenis_ptk')
     			->with('master_status_kepegawaian')
+					->where('ugrIsActive',1)
     			->get();
 		    }
 		    else{
@@ -373,6 +375,7 @@ class ApiUser extends Controller
     			->with('master_jabatan')
     			->with('master_jenis_ptk')
     			->with('master_status_kepegawaian')
+					->where('ugrIsActive',1)
     			->get();
 		    }
 			foreach($dataguru as $val){
@@ -474,5 +477,200 @@ class ApiUser extends Controller
 		return response()->json($response,200);
 		
 	}
+
+	public function getGuruOff($token,$id){
+		if($token == $this->Toket()){
+		    if($id == "all"){
+    			$dataguru = User_guru::with('profile_guru')
+    			->with('master_sekolah')
+    			->with('master_jabatan')
+    			->with('master_jenis_ptk')
+    			->with('master_status_kepegawaian')
+					->where('ugrIsActive',0)
+    			->get();
+		    }
+		    else{
+		        $sekolah = Master_sekolah::firstWhere('sklKode', $id);
+		        $idskl = $sekolah->sklId;
+    		    $dataguru = User_guru::where('ugrSklId',$idskl)
+    		    ->with('profile_guru')
+    			->with('master_sekolah')
+    			->with('master_jabatan')
+    			->with('master_jenis_ptk')
+    			->with('master_status_kepegawaian')
+					->where('ugrIsActive',0)
+    			->get();
+		    }
+			foreach($dataguru as $val){
+				
+				//bagian nama ------------------------------------------------------------------
+				$namaBelakang = trim($val->ugrLastName);
+				$namaDepan = trim($val->ugrFirstName);
+				$gelarDepan = $val->ugrGelarDepan;
+				$gelarBelakang = $val->ugrGelarBelakang;
+
+				//jika full gelar
+				if(!empty($val->ugrGelarBelakang) && !empty($val->ugrGelarDepan)){
+					$nama = $gelarDepan.' '.$namaDepan.' '.$namaBelakang.','.$gelarBelakang;
+				}
+				//jika hanya gelar belakang
+				elseif(empty($val->ugrGelarDepan) && !empty($val->ugrGelarBelakang)){
+					if(empty($namaBelakang)){
+						$nama = $namaDepan.', '.$gelarBelakang;
+					}
+					else{
+						$nama = $namaDepan.' '.$namaBelakang.', '.$gelarBelakang;
+					}
+					
+				}
+				//jika hanya gelar depan
+				elseif(empty($val->ugrGelarBelakang) && !empty($val->ugrGelarDepan)){
+					$nama = $gelarDepan.' '.$namaDepan.' '.$namaBelakang;
+				}
+				//jika tidak ada gelar
+				else{
+					$nama =  $namaDepan.' '.$namaBelakang;
+				}
+				//bagian nama ------------------------------------------------------------------
+
+				$data[]=array(
+					//data guru
+					'kode_sekolah'	=>$val->master_sekolah->sklKode,
+					'username' 			=>$val->ugrUsername,
+					'nama_guru'			=>$nama,
+					'tugas_tambahan' => !empty($val->ugrTugasTambahan) ? $val->master_jabatan->mjbNama : null,
+					'jenis_ptk'			=>!empty($val->ugrPtkKode) ? $val->master_jenis_ptk->ptkNama : null,
+					'kepegawaian'		=> !empty($val->ugrMskpKode) ? $val->master_status_kepegawaian->mskpNama : null,
+					'jsk'						=>$val->profile_guru->prgJsk,
+					'tempat_lahir'	=>$val->profile_guru->prgTpl,
+					'tanggal_lahir'	=> date('d-m-Y',strtotime($val->profile_guru->prgTgl)),
+					'agama'					=>$val->profile_guru->prgAgama,
+					'nuptk'					=>$val->profile_guru->prgNuptk,
+					'no_hp'					=>$val->ugrHp,
+					'no_wa'					=>$val->ugrWa,
+
+					
+					//alamat
+					'alamat'				=>$val->profile_guru->prgAlmat,
+					'rt'						=>$val->profile_guru->prgRt,
+					'rw'						=>$val->profile_guru->prgRw,
+					'dusun'					=>$val->profile_guru->prgDusun,
+					'desa'					=>$val->profile_guru->prgDesa,
+					'kabupaten'			=>$val->profile_guru->prgKabupaten,
+					'kecamatan'			=>$val->profile_guru->prgKecamatan,
+					'provinsi'			=>$val->profile_guru->prgProvinsi,
+
+					//data Ayaha
+					'ayah'					=>$val->profile_guru->prgNamaAyah,
+					'ibu'						=>$val->profile_guru->prgNamaIbu,
+
+					//data kampus
+					'nama_kampus'		=>$val->profile_guru->prgNamaKampus,
+					'falkultas'			=>$val->profile_guru->prgFalkultas,
+					'bidang_studi'	=>$val->profile_guru->prgBidangStudi,
+					//'kependidikan'	=>$val->profile_guru->prgKependidikan,
+					'no_ijasah'			=>$val->profile_guru->prgNoIjazah,
+					'tgl_lulus'			=>$val->profile_guru->prgTglLulus,
+					'ipk'						=>$val->profile_guru->prgIpk,
+
+					//data masuk
+					'tanggal_masuk'	=>$val->profile_guru->prgTglMasuk,
+					'bulan_masuk'		=>$val->profile_guru->prgBlnMasuk,
+					'tahun_masuk'		=>$val->profile_guru->prgTahunMasuk,
+					'tmt'						=>$val->profile_guru->prgTmt,
+					'sk_pengangkatan'	=>$val->profile_guru->prgSkPengangkatan,
+					'keterangan'		=>$val->ugrKeterangan,
+					
+				);
+
+			}
+
+			$response = [
+				'status'=>'oke',
+				'pesan'=>'success',
+				'data'=>$data ,
+			];
+		}
+		else{
+			$response = [
+        'status'=>'error',
+        'pesan'=>'Token Tidak Cocok',
+        'data'=>null,
+      ];
+		}
+		return response()->json($response,200);
+		
+	}
 	
+
+//get Semua Data Tanpa Filter Sekolah
+
+	public function getJurusanAll($token){
+		
+		if($token == $this->Toket()){
+			$datajurusan = Master_jurusan::with('user_guru')->get();
+
+			foreach($datajurusan as $val){
+				$jrs = $this->CountAnggotaJurusanJsk($val->jrsId);	
+
+					//bagian nama ------------------------------------------------------------------
+					$namaBelakang = trim($val->user_guru->ugrLastName);
+					$namaDepan = trim($val->user_guru->ugrFirstName);
+					$gelarDepan = $val->user_guru->ugrGelarDepan;
+					$gelarBelakang = $val->user_guru->ugrGelarBelakang;
+	
+					//jika full gelar
+					if(!empty($val->user_guru->ugrGelarBelakang) && !empty($val->user_guru->ugrGelarDepan)){
+						$nama = $gelarDepan.' '.$namaDepan.' '.$namaBelakang.','.$gelarBelakang;
+					}
+					//jika hanya gelar belakang
+					elseif(empty($val->user_guru->ugrGelarDepan) && !empty($val->user_guru->ugrGelarBelakang)){
+						if(empty($namaBelakang)){
+							$nama = $namaDepan.', '.$gelarBelakang;
+						}
+						else{
+							$nama = $namaDepan.' '.$namaBelakang.', '.$gelarBelakang;
+						}
+						
+					}
+					//jika hanya gelar depan
+					elseif(empty($val->user_guru->ugrGelarBelakang) && !empty($val->user_guru->ugrGelarDepan)){
+						$nama = $gelarDepan.' '.$namaDepan.' '.$namaBelakang;
+					}
+					//jika tidak ada gelar
+					else{
+						$nama =  $namaDepan.' '.$namaBelakang;
+					}
+					//bagian nama ------------------------------------------------------------------
+
+				$data[] =array(
+					'kode_jurusan' => $val->jrsSlag,
+					'nama_jurusan' => $val->jrsNama,
+					'kajur' => !empty($nama) ? $nama : null,
+					'jumlah_total'	=>$jrs['jumlah'],
+					'jumlah_laki'	=>$jrs['jumlah_l'],
+					'jumlah_prempuan'	=>$jrs['jumlah_p'],
+				);
+				
+			}
+
+			$response = [
+				'status'=>'oke',
+				'pesan'=>'success',
+				'data'=>$data ,
+			];
+		}
+		else{
+			$response = [
+        'status'=>'error',
+        'pesan'=>'Token Tidak Cocok',
+        'data'=>null,
+      ];
+		}
+
+		return response()->json($response,200);
+
+	}
+
+
 }

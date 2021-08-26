@@ -48,6 +48,8 @@ getKodeKelas.idrombel
 getKodeRombel.idrombel
 listmateri.$koderombel.$kodemapel.$kodekelas
 getJadwalMapelListSiswa.kodeRombel.kodeKelas
+getJadwalMapelTugasListSiswa.kodeRombel.kodeKelas
+list_tugas_siswa.$koderombel.$kodemapel.$kodekelas
 
 
 
@@ -62,8 +64,10 @@ cetak_rekap_absen.$rbl.$mpl.$bln.$tahunajaran.$semster
 NamatahunAjaranAktif
 tahunAjaranAktif
 SelectJadwalGuru.idguru
+list_materi.idguru.mapelKode
+list_tugas.idguru.mapelKode
 
-
+getnilaitugas'.$rbl.$tugas
 
 //menu select
 SelectRombelSkl.idsekolah

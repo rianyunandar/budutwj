@@ -23,7 +23,8 @@ class Absen_finger_siswa extends Model
     }
     public function user_siswa()
     {
-       return $this->belongsTo(User_siswa::class,'afsSsaId','ssaId');
+      
+       return $this->belongsTo(User_siswa::class,'afsSsaUsername','ssaUsername');
        
     }
     public function master_rombel()
